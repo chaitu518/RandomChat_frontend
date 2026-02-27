@@ -4,7 +4,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-ARG VITE_WS_BROKER_URL=ws://localhost:8080/ws
+
 ENV VITE_WS_BROKER_URL=${VITE_WS_BROKER_URL}
 
 # Install dependencies first (better layer caching)
@@ -19,25 +19,17 @@ RUN npm run build
 # Unprivileged nginx image for better security defaults
 FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
 
-ENV PORT=3000
-
-USER root
-
-# Runtime config template + startup script (supports Railway dynamic PORT)
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+# Static runtime config on port 3000
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy static build output
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-USER 101
 
 # Expose unprivileged nginx port
 EXPOSE 3000
 
 # Basic healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -q -O /dev/null "http://127.0.0.1:${PORT:-3000}/" || exit 1
+  CMD wget -q -O /dev/null "http://127.0.0.1:3000/" || exit 1
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
