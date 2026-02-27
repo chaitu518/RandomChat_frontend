@@ -4,7 +4,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-
+ARG VITE_WS_BROKER_URL=ws://localhost:8080/ws
 ENV VITE_WS_BROKER_URL=${VITE_WS_BROKER_URL}
 
 # Install dependencies first (better layer caching)
@@ -18,6 +18,8 @@ RUN npm run build
 # ---------- Runtime stage ----------
 # Unprivileged nginx image for better security defaults
 FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
+
+ENV PORT=3000
 
 USER root
 
