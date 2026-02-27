@@ -1,0 +1,23 @@
+# Dependencies and caches
+node_modules
+npm-debug.log*
+
+# Build output
+dist
+
+# Git
+.git
+.gitignore
+
+# Local env/editor
+.vscode
+.idea
+.DS_Store
+*.swp
+*.swo
+
+# Docker files not required in image context for runtime copy
+docker-compose.yml
+
+# Docs
+README.md

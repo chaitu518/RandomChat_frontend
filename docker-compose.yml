@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  randomchat-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_WS_BROKER_URL: ${VITE_WS_BROKER_URL:-ws://localhost:8080/ws}
+    image: randomchat-frontend:latest
+    container_name: randomchat-frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /etc/nginx/conf.d:uid=101,gid=0,mode=775
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:${PORT:-3000}/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
