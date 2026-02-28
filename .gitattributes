@@ -1,0 +1,7 @@
+# Default: normalize all text files to LF on commit
+* text=auto eol=lf
+
+# Shell scripts must always be LF (required for Linux/Docker)
+*.sh text eol=lf
+docker-entrypoint.d/* text eol=lf
+Dockerfile text eol=lf
