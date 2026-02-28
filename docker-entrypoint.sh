@@ -16,6 +16,6 @@ window.__APP_CONFIG__ = {
 };
 EOF
 
-sed "s|\${PORT}|${PORT}|g" /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+sed "s|\${PORT}|${PORT}|g" /etc/nginx/templates/default.conf.template > /tmp/default.conf
 
-exec nginx -g 'daemon off;'
+exec nginx -c /tmp/default.conf -g 'daemon off;'

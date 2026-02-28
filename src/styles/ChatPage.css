@@ -42,8 +42,15 @@
 .subtitle,
 .lobby-subtitle {
   color: #666;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   font-size: 0.95rem;
+}
+
+.home-friendly-note {
+  margin: 0 0 14px;
+  color: #4f5b66;
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .benefits-grid {
@@ -100,7 +107,7 @@
   background: #fff3cd;
   border: 1px solid #ffe69c;
   border-radius: 10px;
-  padding: 12px;
+  padding: 10px;
   margin-bottom: 16px;
 }
 
@@ -115,8 +122,8 @@
   padding-left: 18px;
   color: #4f3d00;
   display: grid;
-  gap: 6px;
-  font-size: 0.9rem;
+  gap: 4px;
+  font-size: 0.86rem;
 }
 
 .warning-note {
@@ -457,6 +464,10 @@
 
   .home-view {
     max-width: 660px;
+  }
+
+  .home-friendly-note {
+    font-size: 0.95rem;
   }
 
   .lobby-view {

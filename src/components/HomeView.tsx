@@ -17,33 +17,17 @@ const HomeView: React.FC<HomeViewProps> = ({ onConnect }) => {
       <div className="welcome-card">
         <p className="hero-tag">Anonymous • Safe • Supportive</p>
         <h1>Welcome to RandomChat</h1>
-        <p className="subtitle">Meet someone new, talk openly, and share your burden without revealing your identity.</p>
+        <p className="subtitle">Meet someone new in a calm anonymous chat. Share what’s on your mind and feel a little lighter.</p>
 
-        <div className="benefits-grid">
-          <div className="benefit-item">
-            <h4>Meet Someone New</h4>
-            <p>Get matched instantly with a random person for a fresh conversation.</p>
-          </div>
-          <div className="benefit-item">
-            <h4>Share Your Burden</h4>
-            <p>Sometimes talking to a stranger can help you feel lighter and heard.</p>
-          </div>
-        </div>
-
-        <div className="happening-card">
-          <h3>What is about to happen?</h3>
-          <p>After you connect, you will enter the queue and be paired in a private anonymous chat room.</p>
-        </div>
+        <p className="home-friendly-note">You’ll be matched with a random partner in seconds. Be kind, stay respectful, and take your time.</p>
 
         <div className="warning-card">
-          <h3>⚠ Safety & Caution</h3>
+          <h3>⚠ Quick Safety Note</h3>
           <ul className="warning-list">
-            <li>Use respectful and appropriate language at all times.</li>
-            <li>Do not share personal details like phone, email, or address.</li>
-            <li>If a chat feels unsafe, use Next or Disconnect immediately.</li>
-            <li>Harassment, hate speech, and explicit content are not allowed.</li>
+            <li>Don’t share personal details like phone, email, or address.</li>
+            <li>If a chat feels uncomfortable, use Next or Disconnect right away.</li>
           </ul>
-          <p className="warning-note">By continuing, you agree to follow these safety rules.</p>
+          <p className="warning-note">Keep it friendly and safe for everyone.</p>
         </div>
         
         <div className="connect-section">
