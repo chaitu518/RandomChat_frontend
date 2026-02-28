@@ -19,9 +19,7 @@ RUN npm run build
 # Nginx runtime image
 FROM nginx:1.29-alpine AS runtime
 
-# Runtime nginx template + startup scripts
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --chmod=755 docker-entrypoint.d/10-default-port.sh /docker-entrypoint.d/10-default-port.sh
+# Startup script generates nginx config + env.js at runtime
 COPY --chmod=755 docker-entrypoint.d/40-env-js.sh /docker-entrypoint.d/40-env-js.sh
 
 # Copy static build output with unprivileged ownership
