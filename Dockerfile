@@ -16,14 +16,12 @@ RUN npm run build
 # Nginx runtime image
 FROM nginx:1.29-alpine AS runtime
 
-# Runtime nginx template + entrypoint (PORT + env.js injection)
+# Runtime nginx template + startup scripts
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
+COPY --chmod=755 docker-entrypoint.d/40-env-js.sh /docker-entrypoint.d/40-env-js.sh
 
 # Copy static build output with unprivileged ownership
-COPY --chown=101:0 --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Expose unprivileged nginx port
 EXPOSE 3000
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
