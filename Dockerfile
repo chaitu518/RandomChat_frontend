@@ -18,8 +18,7 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
 
 # Runtime nginx template + entrypoint (PORT + env.js injection)
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
 
 # Copy static build output
 COPY --from=builder /app/dist /usr/share/nginx/html
