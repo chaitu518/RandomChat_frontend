@@ -13,8 +13,8 @@ COPY . .
 RUN npm run build
 
 # ---------- Runtime stage ----------
-# Unprivileged nginx image for better security defaults
-FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
+# Nginx runtime image
+FROM nginx:1.29-alpine AS runtime
 
 # Runtime nginx template + entrypoint (PORT + env.js injection)
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
