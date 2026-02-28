@@ -18,4 +18,26 @@ EOF
 
 sed "s|\${PORT}|${PORT}|g" /etc/nginx/templates/default.conf.template > /tmp/default.conf
 
-exec nginx -c /tmp/default.conf -g 'daemon off;'
+cat <<'EOF' > /tmp/nginx.conf
+worker_processes auto;
+pid /tmp/nginx.pid;
+
+events {
+	worker_connections 1024;
+}
+
+http {
+	include       /etc/nginx/mime.types;
+	default_type  application/octet-stream;
+
+	access_log /dev/stdout;
+	error_log  /dev/stderr warn;
+
+	sendfile        on;
+	keepalive_timeout 65;
+
+	include /tmp/default.conf;
+}
+EOF
+
+exec nginx -c /tmp/nginx.conf -g 'daemon off;'
