@@ -12,7 +12,7 @@ BROKER_URL_ESCAPED=$(printf '%s' "$VITE_WS_BROKER_URL" | sed 's/\\/\\\\/g; s/"/\
 
 mkdir -p /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
-cat <<EOF > /usr/share/nginx/html/env.js
+cat <<EOF > /tmp/env.js
 window.__APP_CONFIG__ = {
 	VITE_WS_BROKER_URL: "${BROKER_URL_ESCAPED}"
 };
