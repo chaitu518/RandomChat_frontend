@@ -7,23 +7,47 @@ WORKDIR /app
 ARG VITE_WS_BROKER_URL
 ENV VITE_WS_BROKER_URL=${VITE_WS_BROKER_URL}
 
-# Install dependencies first (better layer caching)
 COPY package*.json ./
 RUN npm ci
 
-# Build app
 COPY . .
 RUN npm run build
 
 # ---------- Runtime stage ----------
-# Nginx runtime image
 FROM nginx:1.29-alpine AS runtime
 
-# Startup script generates nginx config + env.js at runtime
-COPY --chmod=755 docker-entrypoint.d/40-env-js.sh /docker-entrypoint.d/40-env-js.sh
-
-# Copy static build output with unprivileged ownership
+# Copy static build output
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose unprivileged nginx port
+# Write nginx config directly at build time — no entrypoint scripts, no envsubst surprises
+RUN printf 'server {\n\
+  listen 3000;\n\
+  server_name _;\n\
+  root /usr/share/nginx/html;\n\
+  index index.html;\n\
+\n\
+  add_header X-Frame-Options "SAMEORIGIN" always;\n\
+  add_header X-Content-Type-Options "nosniff" always;\n\
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;\n\
+\n\
+  gzip on;\n\
+  gzip_types text/plain text/css application/json application/javascript image/svg+xml;\n\
+\n\
+  location ~* \\.(?:css|js|mjs|woff2?|ttf|svg|ico|png|jpg|gif|webp)$ {\n\
+    expires 30d;\n\
+    add_header Cache-Control "public, max-age=2592000, immutable";\n\
+    try_files $uri =404;\n\
+  }\n\
+\n\
+  location = /env.js {\n\
+    add_header Cache-Control "no-store, no-cache, must-revalidate" always;\n\
+    expires -1;\n\
+    try_files $uri =404;\n\
+  }\n\
+\n\
+  location / {\n\
+    try_files $uri $uri/ /index.html;\n\
+  }\n\
+}\n' > /etc/nginx/conf.d/default.conf
+
 EXPOSE 3000
