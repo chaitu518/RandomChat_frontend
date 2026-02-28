@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Preference } from '../types/chat';
 
 interface LobbyViewProps {
@@ -8,119 +8,82 @@ interface LobbyViewProps {
   noMatchFound: boolean;
 }
 
-const LobbyView: React.FC<LobbyViewProps> = ({ 
-  onJoin, 
+const LobbyView: React.FC<LobbyViewProps> = ({
+  onJoin,
   onDisconnect,
   isSearching,
-  noMatchFound 
+  noMatchFound
 }) => {
   const [preference, setPreference] = useState<Preference>('BOTH');
-
-  const handleJoin = () => {
-    onJoin(preference);
-  };
 
   return (
     <div className="lobby-view">
       <div className="lobby-card">
-        <p className="hero-tag">Find • Talk • Feel Better</p>
-        <h2>Find a Chat Partner</h2>
-        
+
         {!isSearching && !noMatchFound && (
           <>
-            <p className="lobby-subtitle">You’re about to meet an anonymous friend for 10 minutes — keep it kind, calm, and meaningful.</p>
+            <p className="lobby-eyebrow">Ready to connect?</p>
+            <h2 className="lobby-title">Find a Chat Partner</h2>
+            <p className="lobby-sub">Anonymous  kind  safe. Meet someone new in seconds.</p>
 
-            <div className="lobby-guide-grid">
-              <div className="lobby-guide-card">
-                <h3>How to Speak Appropriately</h3>
-                <ul>
-                  <li>Start politely: “Hi, how are you feeling today?”</li>
-                  <li>Listen first and avoid judgmental language.</li>
-                  <li>Keep conversation respectful and safe for both sides.</li>
-                </ul>
-              </div>
-
-              <div className="lobby-guide-card">
-                <h3>Stress Reliever Prompts</h3>
-                <ul>
-                  <li>“What’s one thing weighing on your mind?”</li>
-                  <li>“Want to share what happened today?”</li>
-                  <li>“Would you like support or just a listener?”</li>
-                </ul>
+            <div className="lobby-prompts">
+              <p className="lobby-prompts-label">Conversation starters</p>
+              <div className="lobby-prompt-chips">
+                <span className="lobby-chip">"How is your day going?"</span>
+                <span className="lobby-chip">"What is on your mind?"</span>
+                <span className="lobby-chip">"Tell me something good."</span>
               </div>
             </div>
 
-            <div className="lobby-anon-note">
-              <h3>Anonymous Friend • 10 Minutes</h3>
-              <p>Use this short chat as a safe pause: breathe, share your burden, and leave feeling lighter.</p>
-            </div>
-            
-            <div className="preference-section">
-              <h3>Chat Preference</h3>
-              <div className="preference-selection">
-                <label className={`preference-option ${preference === 'MALE' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="preference"
-                    value="MALE"
-                    checked={preference === 'MALE'}
-                    onChange={(e) => setPreference(e.target.value as Preference)}
-                  />
-                  <span className="preference-label">Male</span>
-                </label>
-                
-                <label className={`preference-option ${preference === 'FEMALE' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="preference"
-                    value="FEMALE"
-                    checked={preference === 'FEMALE'}
-                    onChange={(e) => setPreference(e.target.value as Preference)}
-                  />
-                  <span className="preference-label">Female</span>
-                </label>
-                
-                <label className={`preference-option ${preference === 'BOTH' ? 'selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="preference"
-                    value="BOTH"
-                    checked={preference === 'BOTH'}
-                    onChange={(e) => setPreference(e.target.value as Preference)}
-                  />
-                  <span className="preference-label">Both</span>
-                </label>
+            <div className="lobby-pref-section">
+              <p className="lobby-pref-label">Chat with</p>
+              <div className="pref-toggle">
+                {(['MALE', 'FEMALE', 'BOTH'] as Preference[]).map(p => (
+                  <button
+                    key={p}
+                    className={`pref-toggle-btn ${preference === p ? 'active' : ''}`}
+                    onClick={() => setPreference(p)}
+                  >
+                    {p === 'MALE' ? 'Males' : p === 'FEMALE' ? 'Females' : 'Anyone'}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <button className="join-btn" onClick={handleJoin}>
-              Join Chat
+            <button className="start-btn lobby-join-btn" onClick={() => onJoin(preference)}>
+              <span>Find Partner</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
             </button>
           </>
         )}
 
         {isSearching && (
           <div className="searching-state">
-            <div className="spinner"></div>
-            <p>You joined the chat queue. Waiting for match...</p>
-            <p className="searching-subtitle">This may take a few moments</p>
+            <div className="search-pulse">
+              <div className="pulse-ring" />
+              <div className="pulse-ring pulse-ring-2" />
+              <div className="pulse-core"></div>
+            </div>
+            <h3 className="searching-title">Finding your match...</h3>
+            <p className="searching-subtitle">Hang tight, this usually takes a few seconds</p>
           </div>
         )}
 
         {noMatchFound && (
           <div className="no-match-state">
-            <div className="no-match-icon">😞</div>
-            <h3>No Match Found</h3>
-            <p>We couldn't find a chat partner at the moment.</p>
-            <p className="no-match-subtitle">Please try again in a few moments.</p>
-            <button className="retry-btn" onClick={handleJoin}>
-              Try Again
+            <div className="no-match-icon"></div>
+            <h3>No one around right now</h3>
+            <p className="no-match-subtitle">Try again in a moment — someone might be waiting!</p>
+            <button className="start-btn" onClick={() => onJoin(preference)} style={{ marginTop: '18px' }}>
+              <span>Try Again</span>
             </button>
           </div>
         )}
 
-        <button className="disconnect-btn" onClick={onDisconnect}>
-          Disconnect
+        <button className="lobby-disconnect-btn" onClick={onDisconnect}>
+          Leave
         </button>
       </div>
     </div>

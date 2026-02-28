@@ -3,6 +3,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import HomeView from '../components/HomeView';
 import LobbyView from '../components/LobbyView';
 import ChatRoomView from '../components/ChatRoomView';
+import Navbar from '../components/Navbar';
 import { Gender, Preference } from '../types/chat';
 import '../styles/ChatPage.css';
 
@@ -19,24 +20,15 @@ const ChatPage: React.FC = () => {
     sendMessage
   } = useWebSocket();
 
-  const handleConnect = (gender: Gender) => {
-    connect(gender);
-  };
+  const inChatRoom = connectionState.connected && !!connectionState.roomId;
 
-  const handleJoin = (preference: Preference) => {
-    join(preference);
-  };
-
-  // Determine which view to show
-  const getCurrentView = () => {
-    // Home view - not connected
-    if (!connectionState.connected) {
-      return <HomeView onConnect={handleConnect} />;
-    }
-    
-    // Chat room view - connected and in a room
-    if (connectionState.roomId) {
-      return (
+  return (
+    <div className="chat-page">
+      {!inChatRoom && <Navbar />}
+      {!connectionState.connected && (
+        <HomeView onConnect={(gender: Gender) => connect(gender)} />
+      )}
+      {connectionState.connected && connectionState.roomId && (
         <ChatRoomView
           connectionState={connectionState}
           chatMessages={chatMessages}
@@ -44,23 +36,15 @@ const ChatPage: React.FC = () => {
           onNext={next}
           onDisconnect={disconnect}
         />
-      );
-    }
-    
-    // Lobby view - connected but not in a room
-    return (
-      <LobbyView
-        onJoin={handleJoin}
-        onDisconnect={disconnect}
-        isSearching={isSearching}
-        noMatchFound={noMatchFound}
-      />
-    );
-  };
-
-  return (
-    <div className="chat-page">
-      {getCurrentView()}
+      )}
+      {connectionState.connected && !connectionState.roomId && (
+        <LobbyView
+          onJoin={(preference: Preference) => join(preference)}
+          onDisconnect={disconnect}
+          isSearching={isSearching}
+          noMatchFound={noMatchFound}
+        />
+      )}
     </div>
   );
 };

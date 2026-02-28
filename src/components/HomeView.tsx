@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Gender } from '../types/chat';
 
 interface HomeViewProps {
@@ -8,58 +8,51 @@ interface HomeViewProps {
 const HomeView: React.FC<HomeViewProps> = ({ onConnect }) => {
   const [gender, setGender] = useState<Gender>('MALE');
 
-  const handleConnect = () => {
-    onConnect(gender);
-  };
-
   return (
     <div className="home-view">
-      <div className="welcome-card">
-        <p className="hero-tag">Anonymous • Safe • Supportive</p>
-        <h1>Welcome to RandomChat</h1>
-        <p className="subtitle">Meet someone new in a calm anonymous chat. Share what’s on your mind and feel a little lighter.</p>
+      <div className="home-hero">
+        <h1 className="home-headline">
+          Meet someone<br />
+          <span className="home-headline-gradient">new, right now.</span>
+        </h1>
+        <p className="home-sub">
+          Anonymous one-on-one chats — no account, no history, no judgement.
+        </p>
+      </div>
 
-        <p className="home-friendly-note">You’ll be matched with a random partner in seconds. Be kind, stay respectful, and take your time.</p>
+      <div className="home-features">
+        <div className="home-feature-pill"> Instant match</div>
+        <div className="home-feature-pill"> 100% anonymous</div>
+        <div className="home-feature-pill"> Free to talk</div>
+      </div>
 
-        <div className="warning-card">
-          <h3>⚠ Quick Safety Note</h3>
-          <ul className="warning-list">
-            <li>Don’t share personal details like phone, email, or address.</li>
-            <li>If a chat feels uncomfortable, use Next or Disconnect right away.</li>
-          </ul>
-          <p className="warning-note">Keep it friendly and safe for everyone.</p>
-        </div>
-        
-        <div className="connect-section">
-          <h3>Select Your Gender</h3>
-          <div className="gender-selection">
-            <label className={`gender-option ${gender === 'MALE' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="gender"
-                value="MALE"
-                checked={gender === 'MALE'}
-                onChange={(e) => setGender(e.target.value as Gender)}
-              />
-              <span className="gender-label">Male</span>
-            </label>
-            
-            <label className={`gender-option ${gender === 'FEMALE' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="gender"
-                value="FEMALE"
-                checked={gender === 'FEMALE'}
-                onChange={(e) => setGender(e.target.value as Gender)}
-              />
-              <span className="gender-label">Female</span>
-            </label>
-          </div>
-          
-          <button className="connect-btn" onClick={handleConnect}>
-            Connect
+      <div className="home-card">
+        <p className="home-card-label">I am</p>
+        <div className="gender-toggle">
+          <button
+            className={`gender-toggle-btn ${gender === 'MALE' ? 'active' : ''}`}
+            onClick={() => setGender('MALE')}
+          >
+            Male
+          </button>
+          <button
+            className={`gender-toggle-btn ${gender === 'FEMALE' ? 'active' : ''}`}
+            onClick={() => setGender('FEMALE')}
+          >
+            Female
           </button>
         </div>
+
+        <button className="start-btn" onClick={() => onConnect(gender)}>
+          <span>Start Chatting</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
+        </button>
+
+        <p className="home-safety-note">
+          Never share personal info. Use Next or Disconnect if anything feels off.
+        </p>
       </div>
     </div>
   );
