@@ -4,6 +4,9 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
+ARG VITE_WS_BROKER_URL
+ENV VITE_WS_BROKER_URL=${VITE_WS_BROKER_URL}
+
 # Install dependencies first (better layer caching)
 COPY package*.json ./
 RUN npm ci
