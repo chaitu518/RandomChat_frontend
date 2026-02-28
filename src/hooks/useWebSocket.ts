@@ -135,28 +135,36 @@ export const useWebSocket = () => {
             const roomId = matchPayload.roomId;
             setIsSearching(false);
             setNoMatchFound(false);
-            setConnectionState(prev => ({ ...prev, roomId }));
-            addChatMessage('Connected to chat room!', 'system', 'SYSTEM');
             if (noMatchTimeoutRef.current) {
               window.clearTimeout(noMatchTimeoutRef.current);
               noMatchTimeoutRef.current = null;
             }
 
-            // Subscribe to room messages
-            if (!subscriptionsRef.current.room) {
-              subscriptionsRef.current.room = client.subscribe(`/topic/room/${roomId}`, (roomMsg: IMessage) => {
-                const roomPayload: ChatMessage = JSON.parse(roomMsg.body);
-                
-                if (roomPayload.senderId) {
-                  const side = roomPayload.senderId === anonIdRef.current ? 'me' : 'other';
-                  addChatMessage(roomPayload.message, side, roomPayload.senderId);
-                } else if (roomPayload.type && roomPayload.message) {
-                  addChatMessage(roomPayload.message, 'system', roomPayload.type);
-                } else {
-                  addChatMessage(roomMsg.body, 'system');
-                }
-              });
+            // Always unsubscribe from old room before subscribing to new one
+            if (subscriptionsRef.current.room) {
+              subscriptionsRef.current.room.unsubscribe();
+              subscriptionsRef.current.room = undefined;
             }
+
+            // Clear old messages and update room state for the new match
+            clearSystemMessageTimeouts();
+            setChatMessages([]);
+            setConnectionState(prev => ({ ...prev, roomId }));
+            addChatMessage('Connected to chat room!', 'system', 'SYSTEM');
+
+            // Subscribe to new room messages
+            subscriptionsRef.current.room = client.subscribe(`/topic/room/${roomId}`, (roomMsg: IMessage) => {
+              const roomPayload: ChatMessage = JSON.parse(roomMsg.body);
+              
+              if (roomPayload.senderId) {
+                const side = roomPayload.senderId === anonIdRef.current ? 'me' : 'other';
+                addChatMessage(roomPayload.message, side, roomPayload.senderId);
+              } else if (roomPayload.type && roomPayload.message) {
+                addChatMessage(roomPayload.message, 'system', roomPayload.type);
+              } else {
+                addChatMessage(roomMsg.body, 'system');
+              }
+            });
           }
 
           if (matchPayload.type === 'SEARCHING') {
@@ -213,7 +221,7 @@ export const useWebSocket = () => {
 
     client.activate();
     clientRef.current = client;
-  }, [addLog, addChatMessage, resetRoom]);
+  }, [addLog, addChatMessage, resetRoom, clearSystemMessageTimeouts]);
 
   const disconnect = useCallback(() => {
     if (clientRef.current) {
