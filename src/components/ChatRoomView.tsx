@@ -27,8 +27,8 @@ const ChatRoomView: React.FC<ChatRoomViewProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && message.trim()) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && message.trim()) {
       handleSendMessage();
     }
   };
@@ -60,7 +60,7 @@ const ChatRoomView: React.FC<ChatRoomViewProps> = ({
           className="message-input"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="Type your message..."
         />
         <button 
