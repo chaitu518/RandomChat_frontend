@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ChatWindow from './ChatWindow';
-import StatusBar from './StatusBar';
 import { ChatBubble, ConnectionState } from '../types/chat';
 
 interface ChatRoomViewProps {
@@ -12,7 +11,6 @@ interface ChatRoomViewProps {
 }
 
 const ChatRoomView: React.FC<ChatRoomViewProps> = ({
-  connectionState,
   chatMessages,
   onSendMessage,
   onNext,
@@ -36,22 +34,28 @@ const ChatRoomView: React.FC<ChatRoomViewProps> = ({
   return (
     <div className="chat-room-view">
       <div className="chat-header">
-        <h2>Chat Room</h2>
+        <div className="chat-header-left">
+          <div className="chat-avatar">A</div>
+          <div className="chat-header-info">
+            <span className="chat-header-name">Anonymous</span>
+            <span className="chat-header-status">
+              <span className="status-dot" />
+              Connected
+            </span>
+          </div>
+        </div>
+        <div className="chat-header-actions">
+          <button className="header-next-btn" onClick={onNext}>
+            Next
+          </button>
+          <button className="header-leave-btn" onClick={onDisconnect}>
+            Leave
+          </button>
+        </div>
       </div>
-
-      <StatusBar connectionState={connectionState} />
 
       <div className="chat-container">
         <ChatWindow messages={chatMessages} />
-      </div>
-
-      <div className="room-quick-actions">
-        <button className="next-btn room-action-btn" onClick={onNext}>
-          Next
-        </button>
-        <button className="disconnect-btn room-action-btn" onClick={onDisconnect}>
-          Disconnect
-        </button>
       </div>
 
       <div className="message-input-container">
@@ -61,14 +65,18 @@ const ChatRoomView: React.FC<ChatRoomViewProps> = ({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type your message..."
+          placeholder="Type a message..."
+          autoComplete="off"
         />
-        <button 
-          className="send-btn" 
+        <button
+          className="send-btn"
           onClick={handleSendMessage}
           disabled={!message.trim()}
+          aria-label="Send"
         >
-          Send
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
         </button>
       </div>
     </div>

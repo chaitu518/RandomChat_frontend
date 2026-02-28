@@ -6,19 +6,27 @@ interface ChatBubbleProps {
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ bubble }) => {
-  const senderLabel =
-    bubble.type === 'me'
-      ? 'You'
-      : bubble.type === 'other'
-        ? 'Partner'
-        : bubble.sender;
+  if (bubble.type === 'system') {
+    return (
+      <div className="bubble-system">
+        {bubble.text}
+      </div>
+    );
+  }
+
+  const isMe = bubble.type === 'me';
+  const time = new Date(bubble.timestamp).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   return (
-    <div className={`bubble ${bubble.type}`}>
-      {senderLabel && (
-        <div className="meta">{senderLabel}</div>
-      )}
-      <div className="text">{bubble.text}</div>
+    <div className={`bubble-wrapper ${isMe ? 'bubble-wrapper-me' : 'bubble-wrapper-other'}`}>
+      {!isMe && <div className="bubble-avatar">S</div>}
+      <div className={`bubble ${isMe ? 'bubble-me' : 'bubble-other'}`}>
+        <div className="bubble-text">{bubble.text}</div>
+        <div className="bubble-time">{time}</div>
+      </div>
     </div>
   );
 };
