@@ -37,20 +37,21 @@ const ChatRoomView: React.FC<ChatRoomViewProps> = ({
     <div className="chat-room-view">
       <div className="chat-header">
         <h2>Chat Room</h2>
-        <div className="chat-actions">
-          <button className="next-btn" onClick={onNext}>
-            Next Chat
-          </button>
-          <button className="disconnect-btn" onClick={onDisconnect}>
-            Disconnect
-          </button>
-        </div>
       </div>
 
       <StatusBar connectionState={connectionState} />
 
       <div className="chat-container">
         <ChatWindow messages={chatMessages} />
+      </div>
+
+      <div className="room-quick-actions">
+        <button className="next-btn room-action-btn" onClick={onNext}>
+          Next
+        </button>
+        <button className="disconnect-btn room-action-btn" onClick={onDisconnect}>
+          Disconnect
+        </button>
       </div>
 
       <div className="message-input-container">

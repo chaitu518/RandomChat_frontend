@@ -23,11 +23,37 @@ const LobbyView: React.FC<LobbyViewProps> = ({
   return (
     <div className="lobby-view">
       <div className="lobby-card">
+        <p className="hero-tag">Find • Talk • Feel Better</p>
         <h2>Find a Chat Partner</h2>
         
         {!isSearching && !noMatchFound && (
           <>
-            <p className="lobby-subtitle">Choose who you'd like to chat with</p>
+            <p className="lobby-subtitle">You’re about to meet an anonymous friend for 10 minutes — keep it kind, calm, and meaningful.</p>
+
+            <div className="lobby-guide-grid">
+              <div className="lobby-guide-card">
+                <h3>How to Speak Appropriately</h3>
+                <ul>
+                  <li>Start politely: “Hi, how are you feeling today?”</li>
+                  <li>Listen first and avoid judgmental language.</li>
+                  <li>Keep conversation respectful and safe for both sides.</li>
+                </ul>
+              </div>
+
+              <div className="lobby-guide-card">
+                <h3>Stress Reliever Prompts</h3>
+                <ul>
+                  <li>“What’s one thing weighing on your mind?”</li>
+                  <li>“Want to share what happened today?”</li>
+                  <li>“Would you like support or just a listener?”</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="lobby-anon-note">
+              <h3>Anonymous Friend • 10 Minutes</h3>
+              <p>Use this short chat as a safe pause: breathe, share your burden, and leave feeling lighter.</p>
+            </div>
             
             <div className="preference-section">
               <h3>Chat Preference</h3>

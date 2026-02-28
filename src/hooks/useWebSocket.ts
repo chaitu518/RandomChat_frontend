@@ -31,6 +31,7 @@ export const useWebSocket = () => {
   const clientIdRef = useRef<string>('');
   const anonIdRef = useRef<string | null>(null);
   const noMatchTimeoutRef = useRef<number | null>(null);
+  const systemMessageTimeoutsRef = useRef<Record<string, number>>({});
   const subscriptionsRef = useRef<{
     hello?: StompSubscription;
     match?: StompSubscription;
@@ -42,26 +43,63 @@ export const useWebSocket = () => {
     setLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${message}`]);
   }, []);
 
+  const clearSystemMessageTimeouts = useCallback(() => {
+    Object.values(systemMessageTimeoutsRef.current).forEach(timeoutId => {
+      window.clearTimeout(timeoutId);
+    });
+    systemMessageTimeoutsRef.current = {};
+  }, []);
+
   const addChatMessage = useCallback((text: string, type: 'me' | 'other' | 'system', sender?: string) => {
+    const messageId = `${Date.now()}-${Math.random()}`;
+
     setChatMessages(prev => [...prev, {
-      id: `${Date.now()}-${Math.random()}`,
+      id: messageId,
       text,
       type,
       sender,
       timestamp: new Date()
     }]);
+
+    if (type === 'system') {
+      const timeoutId = window.setTimeout(() => {
+        setChatMessages(prev => prev.filter(message => message.id !== messageId));
+        delete systemMessageTimeoutsRef.current[messageId];
+      }, 5000);
+
+      systemMessageTimeoutsRef.current[messageId] = timeoutId;
+    }
   }, []);
 
   const resetRoom = useCallback(() => {
     setConnectionState(prev => ({ ...prev, roomId: null }));
     setChatMessages([]);
+    clearSystemMessageTimeouts();
     setIsSearching(false);
     setNoMatchFound(false);
     if (subscriptionsRef.current.room) {
       subscriptionsRef.current.room.unsubscribe();
       subscriptionsRef.current.room = undefined;
     }
-  }, []);
+  }, [clearSystemMessageTimeouts]);
+
+  const startNoMatchTimeout = useCallback(() => {
+    if (noMatchTimeoutRef.current) {
+      window.clearTimeout(noMatchTimeoutRef.current);
+    }
+
+    noMatchTimeoutRef.current = window.setTimeout(() => {
+      setConnectionState(prev => {
+        if (prev.roomId === null && prev.connected) {
+          setIsSearching(false);
+          setNoMatchFound(true);
+          addChatMessage('No match found. Please try joining again.', 'system', 'SYSTEM');
+          return prev;
+        }
+        return prev;
+      });
+    }, 30000);
+  }, [addChatMessage]);
 
   const connect = useCallback((gender: Gender) => {
     setUserGender(gender);
@@ -119,6 +157,11 @@ export const useWebSocket = () => {
                 }
               });
             }
+          }
+
+          if (matchPayload.type === 'SEARCHING') {
+            setIsSearching(true);
+            setNoMatchFound(false);
           }
 
           if (matchPayload.type === 'PARTNER_LEFT') {
@@ -196,30 +239,19 @@ export const useWebSocket = () => {
     });
     addChatMessage('Joined queue. Waiting for match...', 'system', 'SYSTEM');
     addLog(`JOIN: ${userGender}/${preference}`);
-
-    // Set timeout for no match found (e.g., 30 seconds)
-    if (noMatchTimeoutRef.current) {
-      window.clearTimeout(noMatchTimeoutRef.current);
-    }
-    noMatchTimeoutRef.current = window.setTimeout(() => {
-      setConnectionState(prev => {
-        if (prev.roomId === null && prev.connected) {
-          setIsSearching(false);
-          setNoMatchFound(true);
-          addChatMessage('No match found. Please try joining again.', 'system', 'SYSTEM');
-          return prev;
-        }
-        return prev;
-      });
-    }, 30000);
-  }, [addLog, addChatMessage, userGender]);
+    startNoMatchTimeout();
+  }, [addLog, addChatMessage, userGender, startNoMatchTimeout]);
 
   const next = useCallback(() => {
     if (!clientRef.current) return;
     resetRoom();
+    setIsSearching(true);
+    setNoMatchFound(false);
     clientRef.current.publish({ destination: '/app/next' });
+    addChatMessage('Looking for your next chat partner...', 'system', 'SYSTEM');
     addLog('NEXT');
-  }, [addLog, resetRoom]);
+    startNoMatchTimeout();
+  }, [addLog, addChatMessage, resetRoom, startNoMatchTimeout]);
 
   const sendMessage = useCallback((message: string) => {
     if (!clientRef.current || !connectionState.roomId) {
@@ -240,6 +272,7 @@ export const useWebSocket = () => {
 
   useEffect(() => {
     return () => {
+      clearSystemMessageTimeouts();
       if (noMatchTimeoutRef.current) {
         window.clearTimeout(noMatchTimeoutRef.current);
       }
@@ -247,7 +280,7 @@ export const useWebSocket = () => {
         clientRef.current.deactivate();
       }
     };
-  }, []);
+  }, [clearSystemMessageTimeouts]);
 
   return {
     connectionState,

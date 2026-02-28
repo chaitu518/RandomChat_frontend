@@ -28,11 +28,153 @@
   font-size: 1.6rem;
 }
 
+.hero-tag {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #005b96;
+  background: #e6f3ff;
+  border-radius: 999px;
+}
+
 .subtitle,
 .lobby-subtitle {
   color: #666;
   margin-bottom: 18px;
   font-size: 0.95rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.benefit-item {
+  text-align: left;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.benefit-item h4 {
+  margin: 0 0 6px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.benefit-item p {
+  margin: 0;
+  color: #666;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.happening-card {
+  text-align: left;
+  background: #e6f3ff;
+  border: 1px solid #b8def8;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.happening-card h3 {
+  margin: 0 0 6px;
+  color: #004f80;
+  font-size: 1rem;
+}
+
+.happening-card p {
+  margin: 0;
+  color: #1a5f8a;
+  font-size: 0.9rem;
+}
+
+.warning-card {
+  text-align: left;
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.warning-card h3 {
+  margin: 0 0 8px;
+  color: #7a5300;
+  font-size: 1rem;
+}
+
+.warning-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #4f3d00;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.warning-note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #6b4d00;
+  font-weight: 600;
+}
+
+.lobby-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.lobby-guide-card {
+  text-align: left;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.lobby-guide-card h3 {
+  margin: 0 0 8px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.lobby-guide-card ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: #555;
+  font-size: 0.88rem;
+}
+
+.lobby-anon-note {
+  text-align: left;
+  background: #e6f3ff;
+  border: 1px solid #b8def8;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.lobby-anon-note h3 {
+  margin: 0 0 6px;
+  color: #004f80;
+  font-size: 0.95rem;
+}
+
+.lobby-anon-note p {
+  margin: 0;
+  color: #1a5f8a;
+  font-size: 0.9rem;
 }
 
 .connect-section h3,
@@ -167,20 +309,11 @@
   background: #007acc;
   color: #fff;
   padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .chat-header h2 {
   margin: 0;
   font-size: 1.2rem;
-}
-
-.chat-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
 }
 
 .next-btn {
@@ -189,9 +322,20 @@
   color: #007acc;
 }
 
-.chat-header .disconnect-btn {
-  width: 100%;
-  padding: 10px;
+.room-quick-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.room-action-btn {
+  width: auto;
+  padding: 7px 10px;
+  font-size: 12px;
+  border-radius: 8px;
 }
 
 .status-bar {
@@ -312,7 +456,7 @@
   }
 
   .home-view {
-    max-width: 500px;
+    max-width: 660px;
   }
 
   .lobby-view {
@@ -336,6 +480,14 @@
     flex: 1;
   }
 
+  .benefits-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lobby-guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .chat-room-view {
     max-width: 920px;
     min-height: 82vh;
@@ -343,22 +495,17 @@
   }
 
   .chat-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     padding: 14px 18px;
   }
 
-  .chat-actions {
-    display: flex;
+  .room-quick-actions {
+    padding: 10px 18px;
     gap: 10px;
-    width: auto;
   }
 
-  .next-btn,
-  .chat-header .disconnect-btn {
-    width: auto;
-    padding: 9px 14px;
+  .room-action-btn {
+    padding: 8px 12px;
+    font-size: 13px;
   }
 
   .status-bar {
