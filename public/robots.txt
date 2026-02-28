@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /env.js
 
 Sitemap: https://www.therandomchat.in/sitemap.xml
