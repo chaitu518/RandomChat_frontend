@@ -20,8 +20,8 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
 
-# Copy static build output
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy static build output with unprivileged ownership
+COPY --chown=101:0 --from=builder /app/dist /usr/share/nginx/html
 
 # Expose unprivileged nginx port
 EXPOSE 3000
