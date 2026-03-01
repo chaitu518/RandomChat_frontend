@@ -271,8 +271,12 @@ export const useWebSocket = () => {
       // Subscribe to online user count and request immediately + poll every 8s
       subscriptionsRef.current.onlineCount = client.subscribe('/topic/online-count', (msg: IMessage) => {
         try {
-          const payload: OnlineCountMessage = JSON.parse(msg.body);
-          setOnlineCount(payload.count);
+          const parsed = JSON.parse(msg.body);
+          // Server may send a bare number or an { count: number } object
+          const count: number = typeof parsed === 'number' ? parsed : (parsed as OnlineCountMessage).count;
+          if (typeof count === 'number' && !isNaN(count)) {
+            setOnlineCount(count);
+          }
         } catch {
           // ignore malformed messages
         }

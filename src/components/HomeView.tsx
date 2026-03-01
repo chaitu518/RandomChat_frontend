@@ -17,7 +17,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onConnect, onlineCount, isConnected
     <div className="home-view">
       {/* Online users badge — top right */}
       <div className="online-badge">
-        {onlineCount !== null ? (
+        {onlineCount != null && typeof onlineCount === 'number' ? (
           <>
             <span className="online-badge-dot" />
             <span className="online-badge-text">{formatCount(onlineCount)} online</span>

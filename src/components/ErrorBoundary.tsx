@@ -9,6 +9,8 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
+const isDev = import.meta.env.DEV;
+
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -41,6 +43,29 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
           </svg>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Something went wrong</h2>
+
+          {isDev && this.state.error && (
+            <pre style={{
+              background: 'rgba(255,0,0,0.15)',
+              border: '1px solid rgba(255,80,80,0.4)',
+              borderRadius: '10px',
+              padding: '14px 18px',
+              maxWidth: '640px',
+              width: '100%',
+              textAlign: 'left',
+              fontSize: '0.78rem',
+              color: '#ff8a8a',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              overflowY: 'auto',
+              maxHeight: '240px',
+            }}>
+              {this.state.error.message}
+              {'\n\n'}
+              {this.state.error.stack}
+            </pre>
+          )}
+
           <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.55)', maxWidth: '320px' }}>
             The app ran into an unexpected error. Please refresh the page to try again.
           </p>
@@ -68,3 +93,4 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 }
 
 export default ErrorBoundary;
+
