@@ -11,7 +11,8 @@
     "docker:build": "docker build -t randomchat-frontend:latest .",
     "docker:run": "docker run --rm -p 3000:3000 --name randomchat-frontend randomchat-frontend:latest",
     "docker:up": "docker compose up -d --build",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "generate:favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.3.0",
@@ -19,6 +20,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
