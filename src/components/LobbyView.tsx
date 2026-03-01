@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Preference } from '../types/chat';
 
 interface LobbyViewProps {
@@ -6,15 +6,34 @@ interface LobbyViewProps {
   onDisconnect: () => void;
   isSearching: boolean;
   noMatchFound: boolean;
+  isConnected: boolean;
 }
 
 const LobbyView: React.FC<LobbyViewProps> = ({
   onJoin,
   onDisconnect,
   isSearching,
-  noMatchFound
+  noMatchFound,
+  isConnected
 }) => {
   const [preference, setPreference] = useState<Preference>('BOTH');
+  const [pendingJoin, setPendingJoin] = useState(false);
+
+  // If user clicked Find Partner while still connecting, fire join once connected
+  useEffect(() => {
+    if (pendingJoin && isConnected) {
+      setPendingJoin(false);
+      onJoin(preference);
+    }
+  }, [isConnected, pendingJoin, preference, onJoin]);
+
+  const handleJoin = () => {
+    if (!isConnected) {
+      setPendingJoin(true);
+    } else {
+      onJoin(preference);
+    }
+  };
 
   return (
     <div className="lobby-view">
@@ -50,7 +69,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({
               </div>
             </div>
 
-            <button className="start-btn lobby-join-btn" onClick={() => onJoin(preference)}>
+            <button className="start-btn lobby-join-btn" onClick={handleJoin}>
               <span>Find Partner</span>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                 <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -76,7 +95,7 @@ const LobbyView: React.FC<LobbyViewProps> = ({
             <div className="no-match-icon"></div>
             <h3>No one around right now</h3>
             <p className="no-match-subtitle">Try again in a moment — someone might be waiting!</p>
-            <button className="start-btn" onClick={() => onJoin(preference)} style={{ marginTop: '18px' }}>
+            <button className="start-btn" onClick={handleJoin} style={{ marginTop: '18px' }}>
               <span>Try Again</span>
             </button>
           </div>

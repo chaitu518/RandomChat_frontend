@@ -25,13 +25,17 @@ export const useWebSocket = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [noMatchFound, setNoMatchFound] = useState(false);
-  const [userGender, setUserGender] = useState<string>('');
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [partnerAction, setPartnerAction] = useState<'left' | 'next' | null>(null);
 
   const clientRef = useRef<Client | null>(null);
   const clientIdRef = useRef<string>('');
   const anonIdRef = useRef<string | null>(null);
   const noMatchTimeoutRef = useRef<number | null>(null);
   const systemMessageTimeoutsRef = useRef<Record<string, number>>({});
+  // When backend sends PARTNER_NEXT or PARTNER_LEFT it may also push SEARCHING
+  // to re-queue the user automatically. We ignore that until the user explicitly joins.
+  const ignoreBackendSearchingRef = useRef(false);
   const subscriptionsRef = useRef<{
     hello?: StompSubscription;
     match?: StompSubscription;
@@ -101,8 +105,14 @@ export const useWebSocket = () => {
     }, 30000);
   }, [addChatMessage]);
 
-  const connect = useCallback((gender: Gender) => {
-    setUserGender(gender);
+  const connect = useCallback(() => {
+    if (clientRef.current?.active) return; // already connecting or connected
+    // clean up any stale deactivated client
+    if (clientRef.current) {
+      clientRef.current.deactivate();
+      clientRef.current = null;
+    }
+    setIsConnecting(true);
     clientIdRef.current = `client-${Math.random().toString(36).slice(2)}`;
     const client = new Client({
       brokerURL: WS_BROKER_URL,
@@ -113,6 +123,8 @@ export const useWebSocket = () => {
     });
 
     client.onConnect = () => {
+      if (clientRef.current !== client) return; // stale client, ignore
+      setIsConnecting(false);
       setConnectionState(prev => ({ ...prev, connected: true }));
       addLog('CONNECTED');
 
@@ -132,6 +144,14 @@ export const useWebSocket = () => {
           addLog(`MATCH: ${matchMsg.body}`);
 
           if (matchPayload.type === 'MATCHED' && matchPayload.roomId) {
+            // If we're ignoring backend-initiated matches (after PARTNER_NEXT/PARTNER_LEFT),
+            // immediately leave the auto-matched room and don't update UI
+            if (ignoreBackendSearchingRef.current) {
+              console.log('MATCHED ignored — auto-match after partner disconnect, leaving room immediately');
+              if (client.active) client.publish({ destination: '/app/leave' });
+              return;
+            }
+
             const roomId = matchPayload.roomId;
             setIsSearching(false);
             setNoMatchFound(false);
@@ -149,6 +169,7 @@ export const useWebSocket = () => {
             // Clear old messages and update room state for the new match
             clearSystemMessageTimeouts();
             setChatMessages([]);
+            setPartnerAction(null);
             setConnectionState(prev => ({ ...prev, roomId }));
             addChatMessage('Connected to chat room!', 'system', 'SYSTEM');
 
@@ -168,13 +189,51 @@ export const useWebSocket = () => {
           }
 
           if (matchPayload.type === 'SEARCHING') {
+            if (ignoreBackendSearchingRef.current) {
+              console.log('SEARCHING ignored — waiting for user to re-join manually');
+              return;
+            }
             setIsSearching(true);
             setNoMatchFound(false);
           }
 
           if (matchPayload.type === 'PARTNER_LEFT') {
+            // Tell backend to remove B from queue immediately
+            if (client.active) client.publish({ destination: '/app/leave' });
+            // Add message first, then clear room — but don't wipe messages
             addChatMessage('Partner left the chat.', 'system', 'SYSTEM');
-            resetRoom();
+            ignoreBackendSearchingRef.current = true;
+            setPartnerAction('left');
+            setConnectionState(prev => ({ ...prev, roomId: null }));
+            setIsSearching(false);
+            setNoMatchFound(false);
+            if (noMatchTimeoutRef.current) {
+              window.clearTimeout(noMatchTimeoutRef.current);
+              noMatchTimeoutRef.current = null;
+            }
+            if (subscriptionsRef.current.room) {
+              subscriptionsRef.current.room.unsubscribe();
+              subscriptionsRef.current.room = undefined;
+            }
+          }
+
+          if (matchPayload.type === 'PARTNER_NEXT') {
+            // Tell backend to remove B from queue immediately
+            if (client.active) client.publish({ destination: '/app/leave' });
+            addChatMessage('Partner skipped to next. Find a new match!', 'system', 'SYSTEM');
+            ignoreBackendSearchingRef.current = true;
+            setPartnerAction('next');
+            setConnectionState(prev => ({ ...prev, roomId: null }));
+            setIsSearching(false);
+            setNoMatchFound(false);
+            if (noMatchTimeoutRef.current) {
+              window.clearTimeout(noMatchTimeoutRef.current);
+              noMatchTimeoutRef.current = null;
+            }
+            if (subscriptionsRef.current.room) {
+              subscriptionsRef.current.room.unsubscribe();
+              subscriptionsRef.current.room = undefined;
+            }
           }
         });
 
@@ -204,13 +263,16 @@ export const useWebSocket = () => {
     };
 
     client.onWebSocketClose = () => {
+      if (clientRef.current !== client) return; // stale client, ignore
       anonIdRef.current = null;
+      setIsConnecting(false);
       setConnectionState({
         connected: false,
         sessionId: null,
         roomId: null,
         anonId: null
       });
+      clientRef.current = null;
       resetRoom();
       addLog('DISCONNECTED');
     };
@@ -219,10 +281,20 @@ export const useWebSocket = () => {
       addLog(`ERROR: ${frame.body}`);
     };
 
-    client.activate();
     clientRef.current = client;
+    client.activate();
   }, [addLog, addChatMessage, resetRoom, clearSystemMessageTimeouts]);
 
+  // leave() — notifies backend with /app/leave (backend sends PARTNER_LEFT to partner B)
+  const leave = useCallback(() => {
+    setPartnerAction(null);
+    if (clientRef.current?.active) {
+      clientRef.current.publish({ destination: '/app/leave' });
+    }
+    resetRoom();
+  }, [resetRoom]);
+
+  // disconnect() — full WS teardown (used on unmount only)
   const disconnect = useCallback(() => {
     if (clientRef.current) {
       clientRef.current.deactivate();
@@ -230,11 +302,13 @@ export const useWebSocket = () => {
     }
   }, []);
 
-  const join = useCallback((preference: Preference) => {
-    if (!clientRef.current || !userGender) return;
+  const join = useCallback((preference: Preference, gender: Gender) => {
+    if (!clientRef.current?.active || !gender) return;
+    // User explicitly joining — allow backend SEARCHING events again
+    ignoreBackendSearchingRef.current = false;
     
     const joinRequest: JoinRequest = { 
-      gender: userGender as Gender,
+      gender,
       preference
     };
     
@@ -246,12 +320,14 @@ export const useWebSocket = () => {
       body: JSON.stringify(joinRequest)
     });
     addChatMessage('Joined queue. Waiting for match...', 'system', 'SYSTEM');
-    addLog(`JOIN: ${userGender}/${preference}`);
+    addLog(`JOIN: ${gender}/${preference}`);
     startNoMatchTimeout();
-  }, [addLog, addChatMessage, userGender, startNoMatchTimeout]);
+  }, [addLog, addChatMessage, startNoMatchTimeout]);
 
   const next = useCallback(() => {
-    if (!clientRef.current) return;
+    if (!clientRef.current?.active) return;
+    setPartnerAction(null);
+    ignoreBackendSearchingRef.current = false; // user is explicitly searching
     resetRoom();
     setIsSearching(true);
     setNoMatchFound(false);
@@ -262,7 +338,7 @@ export const useWebSocket = () => {
   }, [addLog, addChatMessage, resetRoom, startNoMatchTimeout]);
 
   const sendMessage = useCallback((message: string) => {
-    if (!clientRef.current || !connectionState.roomId) {
+    if (!clientRef.current?.active || !connectionState.roomId) {
       addLog('No active room.');
       return;
     }
@@ -286,6 +362,7 @@ export const useWebSocket = () => {
       }
       if (clientRef.current) {
         clientRef.current.deactivate();
+        clientRef.current = null;
       }
     };
   }, [clearSystemMessageTimeouts]);
@@ -296,8 +373,11 @@ export const useWebSocket = () => {
     logs,
     isSearching,
     noMatchFound,
+    isConnecting,
+    partnerAction,
     connect,
     disconnect,
+    leave,
     join,
     next,
     sendMessage

@@ -16,7 +16,7 @@ export interface JoinRequest {
 }
 
 export interface MatchResponse {
-  type: 'MATCHED' | 'PARTNER_LEFT' | 'SEARCHING';
+  type: 'MATCHED' | 'PARTNER_LEFT' | 'PARTNER_NEXT' | 'SEARCHING';
   roomId?: string;
   message?: string;
 }

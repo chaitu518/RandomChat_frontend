@@ -211,6 +211,17 @@
   opacity: 0.85;
 }
 
+.start-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .home-safety-note {
   margin-top: 16px;
   font-size: 0.74rem;
