@@ -45,6 +45,10 @@ export interface ChatBubble {
   timestamp: Date;
 }
 
+export interface OnlineCountMessage {
+  count: number;
+}
+
 export interface ConnectionState {
   connected: boolean;
   sessionId: string | null;

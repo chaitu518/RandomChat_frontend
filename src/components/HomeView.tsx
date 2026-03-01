@@ -3,13 +3,34 @@ import { Gender } from '../types/chat';
 
 interface HomeViewProps {
   onConnect: (gender: Gender) => void;
+  onlineCount: number | null;
+  isConnected: boolean;
 }
 
-const HomeView: React.FC<HomeViewProps> = ({ onConnect }) => {
+const HomeView: React.FC<HomeViewProps> = ({ onConnect, onlineCount, isConnected }) => {
   const [gender, setGender] = useState<Gender>('MALE');
+
+  const formatCount = (n: number) =>
+    n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toString();
 
   return (
     <div className="home-view">
+      {/* Online users badge — top right */}
+      <div className="online-badge">
+        {onlineCount !== null ? (
+          <>
+            <span className="online-badge-dot" />
+            <span className="online-badge-text">{formatCount(onlineCount)} online</span>
+          </>
+        ) : isConnected ? (
+          <>
+            <span className="online-badge-dot" />
+            <span className="online-badge-text">1 online</span>
+          </>
+        ) : (
+          <span className="online-badge-text online-badge-loading">● connecting...</span>
+        )}
+      </div>
       <div className="home-hero">
         <h1 className="home-headline">
           Meet someone<br />

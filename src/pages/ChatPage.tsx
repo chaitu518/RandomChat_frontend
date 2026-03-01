@@ -14,6 +14,7 @@ const ChatPage: React.FC = () => {
     isSearching,
     noMatchFound,
     partnerAction,
+    onlineCount,
     connect,
     leave,
     join,
@@ -81,9 +82,13 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="chat-page">
-      {!inChatRoom && <Navbar />}
+      {!inChatRoom && <Navbar anonId={connectionState.anonId} />}
       {!inLobby && !inChatRoom && (
-        <HomeView onConnect={handleStartChatting} />
+        <HomeView
+          onConnect={handleStartChatting}
+          onlineCount={onlineCount}
+          isConnected={connectionState.connected}
+        />
       )}
       {inChatRoom && (
         <ChatRoomView

@@ -10,16 +10,20 @@ import {
   ChatMessage,
   JoinRequest,
   MessageRequest,
-  ChatBubble
+  ChatBubble,
+  OnlineCountMessage
 } from '../types/chat';
 import { WS_BROKER_URL } from '../config/env';
+
+const generateLocalAnonId = () =>
+  'anon-' + Math.random().toString(36).slice(2, 10);
 
 export const useWebSocket = () => {
   const [connectionState, setConnectionState] = useState<ConnectionState>({
     connected: false,
     sessionId: null,
     roomId: null,
-    anonId: null
+    anonId: generateLocalAnonId()
   });
   const [chatMessages, setChatMessages] = useState<ChatBubble[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
@@ -27,6 +31,7 @@ export const useWebSocket = () => {
   const [noMatchFound, setNoMatchFound] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [partnerAction, setPartnerAction] = useState<'left' | 'next' | null>(null);
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
 
   const clientRef = useRef<Client | null>(null);
   const clientIdRef = useRef<string>('');
@@ -41,6 +46,7 @@ export const useWebSocket = () => {
     match?: StompSubscription;
     room?: StompSubscription;
     system?: StompSubscription;
+    onlineCount?: StompSubscription;
   }>({});
 
   const addLog = useCallback((message: string) => {
@@ -260,6 +266,18 @@ export const useWebSocket = () => {
         destination: '/app/hello',
         body: JSON.stringify({ clientId: clientIdRef.current })
       });
+
+      // Subscribe to online user count and immediately request current value
+      subscriptionsRef.current.onlineCount = client.subscribe('/topic/online-count', (msg: IMessage) => {
+        try {
+          const payload: OnlineCountMessage = JSON.parse(msg.body);
+          setOnlineCount(payload.count);
+        } catch {
+          // ignore malformed messages
+        }
+      });
+      // Request the current count right away
+      client.publish({ destination: '/app/online-count', body: '{}' });
     };
 
     client.onWebSocketClose = () => {
@@ -270,7 +288,7 @@ export const useWebSocket = () => {
         connected: false,
         sessionId: null,
         roomId: null,
-        anonId: null
+        anonId: generateLocalAnonId()
       });
       clientRef.current = null;
       resetRoom();
@@ -375,6 +393,7 @@ export const useWebSocket = () => {
     noMatchFound,
     isConnecting,
     partnerAction,
+    onlineCount,
     connect,
     disconnect,
     leave,
