@@ -37,6 +37,7 @@ export const useWebSocket = () => {
   const clientIdRef = useRef<string>('');
   const anonIdRef = useRef<string | null>(null);
   const noMatchTimeoutRef = useRef<number | null>(null);
+  const onlineCountPollRef = useRef<number | null>(null);
   const systemMessageTimeoutsRef = useRef<Record<string, number>>({});
   // When backend sends PARTNER_NEXT or PARTNER_LEFT it may also push SEARCHING
   // to re-queue the user automatically. We ignore that until the user explicitly joins.
@@ -267,7 +268,7 @@ export const useWebSocket = () => {
         body: JSON.stringify({ clientId: clientIdRef.current })
       });
 
-      // Subscribe to online user count and immediately request current value
+      // Subscribe to online user count and request immediately + poll every 8s
       subscriptionsRef.current.onlineCount = client.subscribe('/topic/online-count', (msg: IMessage) => {
         try {
           const payload: OnlineCountMessage = JSON.parse(msg.body);
@@ -278,10 +279,23 @@ export const useWebSocket = () => {
       });
       // Request the current count right away
       client.publish({ destination: '/app/online-count', body: '{}' });
+      // Poll every 8 s so each tab keeps the count fresh (handles backends
+      // that respond point-to-point instead of broadcasting to all subscribers)
+      if (onlineCountPollRef.current) window.clearInterval(onlineCountPollRef.current);
+      onlineCountPollRef.current = window.setInterval(() => {
+        if (client.active) {
+          client.publish({ destination: '/app/online-count', body: '{}' });
+        }
+      }, 8000);
     };
 
     client.onWebSocketClose = () => {
       if (clientRef.current !== client) return; // stale client, ignore
+      if (onlineCountPollRef.current) {
+        window.clearInterval(onlineCountPollRef.current);
+        onlineCountPollRef.current = null;
+      }
+      setOnlineCount(null);
       anonIdRef.current = null;
       setIsConnecting(false);
       setConnectionState({
@@ -377,6 +391,10 @@ export const useWebSocket = () => {
       clearSystemMessageTimeouts();
       if (noMatchTimeoutRef.current) {
         window.clearTimeout(noMatchTimeoutRef.current);
+      }
+      if (onlineCountPollRef.current) {
+        window.clearInterval(onlineCountPollRef.current);
+        onlineCountPollRef.current = null;
       }
       if (clientRef.current) {
         clientRef.current.deactivate();
