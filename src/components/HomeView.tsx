@@ -3,11 +3,12 @@ import { Gender } from '../types/chat';
 
 interface HomeViewProps {
   onConnect: (gender: Gender) => void;
+  onGameZone: () => void;
   onlineCount: number | null;
   isConnected: boolean;
 }
 
-const HomeView: React.FC<HomeViewProps> = ({ onConnect, onlineCount, isConnected }) => {
+const HomeView: React.FC<HomeViewProps> = ({ onConnect, onGameZone, onlineCount, isConnected }) => {
   const [gender, setGender] = useState<Gender>('MALE');
 
   const formatCount = (n: number) =>
@@ -74,6 +75,17 @@ const HomeView: React.FC<HomeViewProps> = ({ onConnect, onlineCount, isConnected
         <p className="home-safety-note">
           Never share personal info. Use Next or Disconnect if anything feels off.
         </p>
+      </div>
+
+      <div className="home-gamezone-nudge">
+        <p className="home-gamezone-nudge-text">Bored of waiting for people?</p>
+        <button className="home-gamezone-btn" onClick={onGameZone}>
+          <span>🎮</span>
+          <span>Go to Game Zone</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
+          </svg>
+        </button>
       </div>
     </div>
   );

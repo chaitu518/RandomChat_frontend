@@ -1,11 +1,41 @@
 import React, { useState } from 'react';
 
+type NavPage = 'home' | 'gamezone';
+
 interface NavbarProps {
   anonId?: string | null;
+  activePage?: NavPage;
+  onNavigate?: (page: NavPage) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ anonId }) => {
+const NAV_ITEMS: { page: NavPage; label: string; icon: React.ReactNode }[] = [
+  {
+    page: 'home',
+    label: 'Home',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg>
+    ),
+  },
+  {
+    page: 'gamezone',
+    label: 'Game Zone',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z" />
+      </svg>
+    ),
+  },
+];
+
+const Navbar: React.FC<NavbarProps> = ({ anonId, activePage = 'home', onNavigate }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleNav = (page: NavPage) => {
+    onNavigate?.(page);
+    setDrawerOpen(false);
+  };
 
   return (
     <>
@@ -63,6 +93,24 @@ const Navbar: React.FC<NavbarProps> = ({ anonId }) => {
         </div>
 
         <div className="drawer-body">
+          {/* Navigation */}
+          <nav className="drawer-nav">
+            <p className="drawer-label">Navigate</p>
+            {NAV_ITEMS.map(({ page, label, icon }) => (
+              <button
+                key={page}
+                className={`drawer-nav-item ${activePage === page ? 'active' : ''}`}
+                onClick={() => handleNav(page)}
+              >
+                <span className="drawer-nav-icon">{icon}</span>
+                <span className="drawer-nav-label">{label}</span>
+                {activePage === page && <span className="drawer-nav-active-dot" />}
+              </button>
+            ))}
+          </nav>
+
+          <div className="drawer-divider" />
+
           <div className="drawer-avatar">
             <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
               <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />

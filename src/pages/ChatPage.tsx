@@ -3,6 +3,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import HomeView from '../components/HomeView';
 import LobbyView from '../components/LobbyView';
 import ChatRoomView from '../components/ChatRoomView';
+import GameZoneView from '../components/GameZoneView';
 import Navbar from '../components/Navbar';
 import { Gender, Preference } from '../types/chat';
 import '../styles/ChatPage.css';
@@ -23,6 +24,7 @@ const ChatPage: React.FC = () => {
   } = useWebSocket();
 
   const [inLobby, setInLobby] = useState(false);
+  const [inGameZone, setInGameZone] = useState(false);
   const [selectedGender, setSelectedGender] = useState<Gender>('MALE');
   // Refs so effects always read the latest values without stale closures
   const selectedGenderRef = React.useRef<Gender>('MALE');
@@ -82,13 +84,26 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="chat-page">
-      {!inChatRoom && <Navbar anonId={connectionState.anonId} />}
-      {!inLobby && !inChatRoom && (
+      {!inChatRoom && (
+        <Navbar
+          anonId={connectionState.anonId}
+          activePage={inGameZone ? 'gamezone' : 'home'}
+          onNavigate={(page) => {
+            setInGameZone(page === 'gamezone');
+            setInLobby(false);
+          }}
+        />
+      )}
+      {!inLobby && !inChatRoom && !inGameZone && (
         <HomeView
           onConnect={handleStartChatting}
+          onGameZone={() => setInGameZone(true)}
           onlineCount={onlineCount}
           isConnected={connectionState.connected}
         />
+      )}
+      {inGameZone && !inChatRoom && (
+        <GameZoneView onBack={() => setInGameZone(false)} />
       )}
       {inChatRoom && (
         <ChatRoomView

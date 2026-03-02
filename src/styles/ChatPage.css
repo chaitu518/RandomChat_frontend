@@ -224,6 +224,68 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Drawer nav section */
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0 -4px;
+}
+
+.drawer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+  position: relative;
+}
+
+.drawer-nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.drawer-nav-item.active {
+  background: rgba(79, 172, 254, 0.12);
+  color: #4facfe;
+}
+
+.drawer-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.drawer-nav-label {
+  flex: 1;
+}
+
+.drawer-nav-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4facfe;
+  box-shadow: 0 0 6px rgba(79, 172, 254, 0.7);
+  flex-shrink: 0;
+}
+
 
 .navbar-brand {
   display: flex;
@@ -1029,3 +1091,203 @@
     max-width: 58%;
   }
 }
+
+/* ================================
+   Home → Game Zone nudge
+   ================================ */
+.home-gamezone-nudge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.home-gamezone-nudge-text {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.2px;
+}
+
+.home-gamezone-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.15s;
+  backdrop-filter: blur(8px);
+}
+
+.home-gamezone-btn:hover {
+  background: rgba(161, 140, 209, 0.18);
+  border-color: rgba(161, 140, 209, 0.45);
+  color: #c8b4f8;
+  transform: translateY(-2px);
+}
+
+/* ================================
+   Game Zone View
+   ================================ */
+.gz-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 20px 48px;
+  gap: 32px;
+}
+
+.gz-header {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gz-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  align-self: flex-start;
+}
+
+.gz-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.gz-title-block {
+  text-align: center;
+}
+
+.gz-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+.gz-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.55;
+}
+
+.gz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 760px;
+}
+
+.gz-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  cursor: default;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  backdrop-filter: blur(12px);
+}
+
+.gz-card:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--gz-accent) 50%, transparent);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--gz-accent) 20%, transparent);
+}
+
+.gz-card-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.gz-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gz-card-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.gz-card-desc {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.gz-play-btn {
+  padding: 9px 22px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gz-accent) 25%, rgba(255,255,255,0.08));
+  color: var(--gz-accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  letter-spacing: 0.2px;
+}
+
+.gz-play-btn:hover {
+  background: color-mix(in srgb, var(--gz-accent) 40%, rgba(255,255,255,0.1));
+  transform: scale(1.04);
+}
+
+.gz-card-soon {
+  opacity: 0.55;
+  cursor: default;
+}
+.gz-card-soon:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.gz-soon-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.35);
+}
+
+.gz-coming-soon {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.3px;
+}
+
