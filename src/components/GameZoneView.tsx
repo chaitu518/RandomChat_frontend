@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import FloppyBird from '../games/floppy-bird/FloppyBird';
+import BlockBlast from '../games/block-blast/BlockBlast';
 
-type GameId = 'floppybird' | 'tictactoe' | 'rps' | 'wordguess' | 'quiz';
+type GameId = 'floppybird' | 'blockblast' | 'tictactoe' | 'rps' | 'wordguess' | 'quiz';
 
 interface GameZoneViewProps {
   onBack: () => void;
@@ -23,6 +24,14 @@ const GAMES: GameEntry[] = [
     name: 'Floppy Bird',
     desc: 'Dodge neon gates — tap to flap!',
     color: '#a78bfa',
+    ready: true,
+  },
+  {
+    id: 'blockblast',
+    icon: '🧱',
+    name: 'Block Blast',
+    desc: 'Stack blocks, clear lines, beat the score!',
+    color: '#00f2fe',
     ready: true,
   },
   {
@@ -57,6 +66,9 @@ const GameZoneView: React.FC<GameZoneViewProps> = ({ onBack }) => {
   // ── If a game is active, render it full-screen ───────────────────────────
   if (activeGame === 'floppybird') {
     return <FloppyBird onBack={() => setActiveGame(null)} />;
+  }
+  if (activeGame === 'blockblast') {
+    return <BlockBlast onBack={() => setActiveGame(null)} />;
   }
 
   // ── Game grid ────────────────────────────────────────────────────────────

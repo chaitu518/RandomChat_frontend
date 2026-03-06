@@ -31,6 +31,7 @@ export const useWebSocket = () => {
   const [noMatchFound, setNoMatchFound] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [partnerAction, setPartnerAction] = useState<'left' | 'next' | null>(null);
+  const partnerActionIdRef = useRef(0);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
 
   const clientRef = useRef<Client | null>(null);
@@ -210,6 +211,9 @@ export const useWebSocket = () => {
             // Add message first, then clear room — but don't wipe messages
             addChatMessage('Partner left the chat.', 'system', 'SYSTEM');
             ignoreBackendSearchingRef.current = true;
+            // Reset to null first so consecutive same-type events still trigger the effect
+            setPartnerAction(null);
+            partnerActionIdRef.current += 1;
             setPartnerAction('left');
             setConnectionState(prev => ({ ...prev, roomId: null }));
             setIsSearching(false);
@@ -229,6 +233,9 @@ export const useWebSocket = () => {
             if (client.active) client.publish({ destination: '/app/leave' });
             addChatMessage('Partner skipped to next. Find a new match!', 'system', 'SYSTEM');
             ignoreBackendSearchingRef.current = true;
+            // Reset to null first so consecutive same-type events still trigger the effect
+            setPartnerAction(null);
+            partnerActionIdRef.current += 1;
             setPartnerAction('next');
             setConnectionState(prev => ({ ...prev, roomId: null }));
             setIsSearching(false);
@@ -407,6 +414,10 @@ export const useWebSocket = () => {
     };
   }, [clearSystemMessageTimeouts]);
 
+  const clearPartnerAction = useCallback(() => {
+    setPartnerAction(null);
+  }, []);
+
   return {
     connectionState,
     chatMessages,
@@ -421,6 +432,7 @@ export const useWebSocket = () => {
     leave,
     join,
     next,
-    sendMessage
+    sendMessage,
+    clearPartnerAction
   };
 };

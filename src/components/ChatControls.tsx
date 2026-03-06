@@ -33,7 +33,7 @@ const ChatControls: React.FC<ChatControlsProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && message.trim()) {
       handleSendMessage();
     }
@@ -77,7 +77,7 @@ const ChatControls: React.FC<ChatControlsProps> = ({
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="Say hi"
           disabled={!connected}
         />

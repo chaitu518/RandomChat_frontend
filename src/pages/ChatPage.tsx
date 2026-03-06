@@ -20,7 +20,8 @@ const ChatPage: React.FC = () => {
     leave,
     join,
     next,
-    sendMessage
+    sendMessage,
+    clearPartnerAction
   } = useWebSocket();
 
   const [inLobby, setInLobby] = useState(false);
@@ -70,7 +71,10 @@ const ChatPage: React.FC = () => {
       // Partner clicked Next → show Find Partner lobby, let B decide manually
       setInLobby(true);
     }
-  }, [partnerAction]);
+
+    // Clear after handling so future same-type events still trigger this effect
+    clearPartnerAction();
+  }, [partnerAction, clearPartnerAction]);
 
   // Keep inLobby in sync: if WS drops entirely, go home
   useEffect(() => {
